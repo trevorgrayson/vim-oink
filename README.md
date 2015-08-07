@@ -23,4 +23,5 @@ Write some SQL in VIM and try the following:
 
 Make sure you have syntax highlighting on, and have a ball!
 
-Presently Postgres only, but expect this to expand to MySQL and friends.
+
+This expects that you have the `psql` executable installed on your machine.  Presently Postgres only, but expect this to expand to MySQL and friends.

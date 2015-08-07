@@ -61,13 +61,30 @@ function PgDatabases()
   return split(system('echo "SELECT datname FROM pg_database;" | psql'),'\n')[3:-3] 
 endfunction
 
-function PgExec()
-  echom v
+function PgTables()
+  return split(system('echo "\dt" | psql'),'\n')
 endfunction
 
+function PgExec()
+  let query = s:get_visual_selection()
+  execute '!echo "' . query . '" | psql'
+endfunction
+
+command! -range PgExec call PgExec()
 command! PgConnect call PgConnect()
 command! PgExecBuf call PgExecBuf()
 command! PgDatabases echo join( PgDatabases(), "\n" )
+command! PgTables echo join( PgTables(), "\n" )
 command! PgSchemas call PgSchemas()
-command! PgExplainBuf call PgExplainBuf
+command! PgExplainBuf call PgExplainBuf()
 command! -nargs=1 PgExecFile call s:PgExecFile(<f-args>)
+
+function! s:get_visual_selection()
+  " Why is this not a built-in Vim script function?!
+  let [lnum1, col1] = getpos("'<")[1:2]
+  let [lnum2, col2] = getpos("'>")[1:2]
+  let lines = getline(lnum1, lnum2)
+  let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1:]
+  return join(lines, " ")
+endfunction
