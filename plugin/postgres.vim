@@ -70,6 +70,13 @@ function PgExec()
   execute '!echo "' . query . '" | psql'
 endfunction
 
+function PgExecHere()
+  let query = s:get_visual_selection()
+  let results =  split(system('echo "' . query . '" | psql'),'\n')
+  call append( line('$'), results)
+endfunction
+
+command! -range PgExecHere call PgExecHere()
 command! -range PgExec call PgExec()
 command! PgConnect call PgConnect()
 command! PgExecBuf call PgExecBuf()
