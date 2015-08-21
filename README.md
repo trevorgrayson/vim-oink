@@ -9,11 +9,23 @@ To get started, copy the `*.vim` files from the `plugin` folder into your `.vim/
 
     :PgConnect
 
+    :PgStatus
+
     :PgDatabases
 
     :PgTables
 
     :PgSchemas
+
+
+You may set your environment with the following commands:
+
+    :PgSetHost
+
+    :PgSetUser
+
+    :PgSetDatabase
+
 
 Write some SQL in VIM and try the following:
     

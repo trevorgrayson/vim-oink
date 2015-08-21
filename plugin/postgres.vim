@@ -5,7 +5,7 @@
 "
 "
 
-function PgConnect()
+function! PgConnect()
   let lines = readfile(expand(('~/.pgpass')))
   let labels = []
   let i = 0
@@ -20,6 +20,12 @@ function PgConnect()
   echom ' ...connecting to: ' . $PGHOST . ' as ' . $PGUSER
 
   let databases = PgDatabases()
+
+  if len(databases) == 0
+    echom "please set the database using :let $PGDATABASE=''"
+    return
+  endif
+
   let dblabels = []
   let i = 0
   for d in databases
@@ -32,24 +38,36 @@ function PgConnect()
 
 endfunction
 
-function PgSchemas()
+function! PgSetUser(user)
+  let $PGUSER = a:user
+endfunction
+
+function! PgSetDatabase(database)
+  let $PGDATABASE = a:database
+endfunction
+
+function! PgSetHost(host)
+  let $PGHOST = a:host
+endfunction
+
+function! PgSchemas()
   !echo "select schema_name from information_schema.schemata" | psql
 endfunction
 
 " presently this Buf.. should be able to pass a buffer
-function PgExecBuf()
+function! PgExecBuf()
   set ft=sql
   let last_query = join(getline(1,'$'),' ')
   execute '!echo "' . last_query . '" | psql'
 endfunction
 
-function PgExplainBuf()
+function! PgExplainBuf()
   set ft=sql
   let last_query = join(getline(1,'$'),' ')
   execute '!echo "EXPLAIN ' . last_query . '" | psql'
 endfunction
 
-function PgExecFile(sqlFile)
+function! PgExecFile(sqlFile)
   "if sqlFile = filename
     "set ft=sql
   "endif
@@ -57,34 +75,47 @@ function PgExecFile(sqlFile)
   execute '!echo "' . query . '" | psql'
 endfunction
 
-function PgDatabases()
+function! PgDatabases()
   return split(system('echo "SELECT datname FROM pg_database;" | psql'),'\n')[3:-3] 
 endfunction
 
-function PgTables()
+function! PgTables()
   return split(system('echo "\dt" | psql'),'\n')
 endfunction
 
-function PgExec()
+function! PgExec()
   let query = s:get_visual_selection()
   execute '!echo "' . query . '" | psql'
 endfunction
 
-function PgExecHere()
+function! PgStatus()
+  echom "Host: " . $PGHOST
+  echom "User: " . $PGUSER
+  echom "Db:   " . $PGDATABASE
+endfunction
+
+function! PgExecHere()
   let query = s:get_visual_selection()
   let results =  split(system('echo "' . query . '" | psql'),'\n')
-  call append( line('$'), results)
+  call append( line("'>"), results)
 endfunction
 
 command! -range PgExecHere call PgExecHere()
 command! -range PgExec call PgExec()
 command! PgConnect call PgConnect()
+command! PgStatus  call PgStatus()
 command! PgExecBuf call PgExecBuf()
 command! PgDatabases echo join( PgDatabases(), "\n" )
 command! PgTables echo join( PgTables(), "\n" )
 command! PgSchemas call PgSchemas()
 command! PgExplainBuf call PgExplainBuf()
 command! -nargs=1 PgExecFile call s:PgExecFile(<f-args>)
+
+command! -nargs=1 PgSetHost call PgSetHost(<f-args>)
+command! -nargs=1 PgSetUser call PgSetUser(<f-args>)
+command! -nargs=1 PgSetDatabase call PgSetDatabase(<f-args>)
+
+command! SS call 
 
 function! s:get_visual_selection()
   " Why is this not a built-in Vim script function?!
