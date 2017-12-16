@@ -37,3 +37,9 @@ Make sure you have syntax highlighting on, and have a ball!
 
 
 This expects that you have the `psql` executable installed on your machine.  Presently Postgres only, but expect this to expand to MySQL and friends.
+
+# Development
+
+```
+  source plugin/*
+```
